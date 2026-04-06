@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金國傳先生健康紀錄表</title>
+<style>
+  :root {
+    --primary: #1a56db; --primary-dark: #1e429f;
+    --bg: #f0f4ff; --card: #ffffff; --border: #c3d1f0;
+    --text: #111827; --muted: #4b5563;
+    --red: #dc2626; --green: #16a34a; --orange: #ea580c;
+    --purple: #7c3aed; --teal: #0d9488;
+    --shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: '微軟正黑體','Microsoft JhengHei','PingFang TC',sans-serif; background: var(--bg); color: var(--text); font-size: 18px; }
+  h1 { font-size: 2rem; font-weight: 800; }
+  h2 { font-size: 1.4rem; font-weight: 700; }
+  h3 { font-size: 1.15rem; font-weight: 700; }
+  header { background: var(--primary); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: var(--shadow); }
+  header .subtitle { font-size: 1rem; opacity: .8; margin-top: 2px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab-btn { padding: 12px 24px; border: 2px solid var(--border); background: #fff; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--muted); transition: all .2s; }
+  .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tab-btn:hover:not(.active) { background: #e8eeff; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .form-card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 28px; margin-bottom: 28px; border: 1.5px solid var(--border); }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 1rem; font-weight: 700; color: var(--muted); }
+  input[type=text], input[type=number], input[type=date] {
+    border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    font-size: 1.2rem; width: 100%; background: #f8faff; color: var(--text); transition: border .2s;
+  }
+  input:focus { outline: none; border-color: var(--primary); background: #fff; }
+  .section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .section-dot { width: 14px; height: 14px; border-radius: 50%; }
+  .dot-bp { background: var(--red); } .dot-bs { background: var(--orange); } .dot-wt { background: var(--teal); }
+  .divider { border: none; border-top: 2px dashed var(--border); margin: 20px 0; }
+  .btn { padding: 13px 22px; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; border: none; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--primary); color: #fff; } .btn-primary:hover { background: var(--primary-dark); }
+  .btn-danger  { background: var(--red);     color: #fff; } .btn-danger:hover  { background: #b91c1c; }
+  .btn-green   { background: var(--green);   color: #fff; } .btn-green:hover   { background: #15803d; }
+  .btn-orange  { background: var(--orange);  color: #fff; } .btn-orange:hover  { background: #c2410c; }
+  .btn-gray    { background: #6b7280;        color: #fff; } .btn-gray:hover    { background: #4b5563; }
+  .btn-sm { padding: 6px 8px; font-size: .88rem; }
+  .action-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
+  th { background: var(--primary); color: #fff; padding: 9px 3px; text-align: center; font-size: .82rem; font-weight: 700; line-height: 1.3; }
+  td { padding: 9px 3px; text-align: center; border-bottom: 1px solid #e5e7eb; font-size: .88rem; overflow: hidden; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f5f8ff; }
+  tr:hover td { background: #e8eeff; }
+  /* col widths — 17 cols total */
+  table col.c-date   { width: 90px; }
+  table col.c-bp     { width: 42px; }
+  table col.c-bs     { width: 42px; }
+  table col.c-wt     { width: 50px; }
+  table col.c-note   { width: 50px; }
+  table col.c-action { width: 68px; }
+  .no-data { text-align: center; padding: 40px; color: var(--muted); font-size: 1.1rem; }
+  .val-warn { color: #cc0000 !important; font-weight: bold; }
+  .val-ok   { color: var(--green); }
+  .val-normal { color: var(--text); }
+  .import-box { background: #f8faff; border: 2px dashed var(--border); border-radius: 12px; padding: 28px; text-align: center; }
+  .import-box input[type=file] { font-size: 1rem; margin: 12px 0; }
+  #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #111; color: #fff; padding: 14px 28px; border-radius: 12px; font-size: 1.05rem; font-weight: 700; z-index: 9999; transition: transform .3s; pointer-events: none; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: #fff; border-radius: 14px; padding: 16px; border: 1.5px solid var(--border); box-shadow: var(--shadow); text-align: center; }
+  .stat-label { font-size: .88rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+  .stat-val { font-size: 1.5rem; font-weight: 800; }
+  /* PRINT */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: #fff !important; font-size: 10pt; color: #000; }
+    header, .tabs, .form-card, .action-bar, #toast { display: none !important; }
+    .no-print { display: none !important; }
+    #tab-input, #tab-stats, #tab-import { display: none !important; }
+    #tab-history { display: block !important; }
+    .table-wrap { box-shadow: none !important; border: 1.5px solid #aaa; border-radius: 0; overflow: visible; }
+    table { table-layout: auto; }
+    th { background: #1a56db !important; color: #fff !important; padding: 7px 4px; font-size: 8pt; }
+    td { padding: 6px 4px; font-size: 8pt; border-bottom: 1px solid #ccc; }
+    tr:nth-child(even) td { background: #f0f4ff !important; }
+    .val-warn { color: #cc0000 !important; font-weight: bold; }
+    .print-title    { display: block !important; text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
+    .print-subtitle { display: block !important; text-align: center; font-size: 9pt; color: #555; margin-bottom: 12px; }
+    @page { size: A4 landscape; margin: 10mm; }
+  }
+  .print-title, .print-subtitle { display: none; }
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<header>
+  <div>
+    <h1>🩺 金國傳先生健康紀錄表</h1>
+    <div class="subtitle">血壓・血糖・體重｜資料儲存在本機，完全離線</div>
+  </div>
+  <div style="font-size:1rem;opacity:.85;" id="header-date"></div>
+</header>
+
+<div class="container">
+  <div class="tabs no-print">
+    <button class="tab-btn active" onclick="switchTab('input')">✏️ 輸入紀錄</button>
+    <button class="tab-btn" onclick="switchTab('history')">📋 歷史紀錄</button>
+    <button class="tab-btn" onclick="switchTab('stats')">📊 統計摘要</button>
+    <button class="tab-btn" onclick="switchTab('import')">📥 匯入資料</button>
+  </div>
+
+  <!-- INPUT -->
+  <div id="tab-input" class="tab-content active">
+    <div class="form-card">
+      <div class="section-title"><span class="section-dot dot-bp"></span><h2>基本資訊</h2></div>
+      <div class="form-grid">
+        <div class="form-group"><label>📅 日期</label><input type="date" id="rec-date"></div>
+        <div class="form-group"><label>📝 備註</label><input type="text" id="rec-note" placeholder="可空白"></div>
+        <div class="form-group">
+          <label>📏 身高（cm）<span style="font-size:.8rem;color:var(--muted)">（用於 BMI）</span></label>
+          <input type="number" id="user-height" placeholder="例：170" min="100" max="250" oninput="localStorage.setItem('user_height_cm', this.value)">
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="section-title"><span class="section-dot dot-bp"></span><h2>🫀 血壓（mmHg）</h2></div>
+      <div class="form-grid">
+        <div class="form-group"><label>早 收縮壓（高）</label><input type="number" id="bp-am-sys" placeholder="例：120" min="60" max="250"></div>
+        <div class="form-group"><label>早 舒張壓（低）</label><input type="number" id="bp-am-dia" placeholder="例：80"  min="40" max="160"></div>
+        <div class="form-group"><label>早 心率（次/分）</label><input type="number" id="bp-am-hr"  placeholder="例：72"  min="30" max="200"></div>
+        <div class="form-group"><label>晚 收縮壓（高）</label><input type="number" id="bp-pm-sys" placeholder="例：118" min="60" max="250"></div>
+        <div class="form-group"><label>晚 舒張壓（低）</label><input type="number" id="bp-pm-dia" placeholder="例：78"  min="40" max="160"></div>
+        <div class="form-group"><label>晚 心率（次/分）</label><input type="number" id="bp-pm-hr"  placeholder="例：70"  min="30" max="200"></div>
+      </div>
+      <hr class="divider">
+      <div class="section-title"><span class="section-dot dot-bs"></span><h2>🍬 血糖（mg/dL）</h2></div>
+      <div class="form-grid">
+        <div class="form-group"><label>早餐前（空腹）</label><input type="number" id="bs-pre-am"     placeholder="例：95"  min="30" max="600"></div>
+        <div class="form-group"><label>早餐後 2 小時</label><input type="number" id="bs-post-am"    placeholder="例：130" min="30" max="600"></div>
+        <div class="form-group"><label>午餐前</label>        <input type="number" id="bs-pre-lunch"  placeholder="例：100" min="30" max="600"></div>
+        <div class="form-group"><label>午餐後 2 小時</label><input type="number" id="bs-post-lunch" placeholder="例：140" min="30" max="600"></div>
+        <div class="form-group"><label>晚餐前</label>        <input type="number" id="bs-pre-dinner" placeholder="例：100" min="30" max="600"></div>
+        <div class="form-group"><label>晚餐後 2 小時</label><input type="number" id="bs-post-dinner" placeholder="例：140" min="30" max="600"></div>
+      </div>
+      <hr class="divider">
+      <div class="section-title"><span class="section-dot dot-wt"></span><h2>⚖️ 體重</h2></div>
+      <div class="form-grid">
+        <div class="form-group"><label>體重（kg）</label><input type="number" id="wt-kg" placeholder="例：70.5" step="0.1" min="20" max="300"></div>
+        <div class="form-group"><label>體脂率（%）</label><input type="number" id="wt-bf" placeholder="選填"    step="0.1" min="1"  max="80"></div>
+      </div>
+      <br>
+      <button class="btn btn-primary" onclick="saveRecord()">💾 儲存今日紀錄</button>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="tab-content">
+    <div class="print-title">金國傳先生健康紀錄表</div>
+    <div class="print-subtitle" id="print-date-subtitle"></div>
+    <div class="action-bar no-print">
+      <button class="btn btn-green"  onclick="exportCSV()">📤 匯出 CSV</button>
+      <button class="btn btn-orange" onclick="exportPDF()">📄 匯出 PDF（列印另存）</button>
+      <button class="btn btn-gray"   onclick="printTable()">🖨️ 列印</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑️ 清除所有資料</button>
+    </div>
+    <div class="table-wrap">
+      <table id="history-table">
+        <colgroup>
+          <col class="c-date">
+          <col class="c-bp"><col class="c-bp"><col class="c-bp">
+          <col class="c-bp"><col class="c-bp"><col class="c-bp">
+          <col class="c-bs"><col class="c-bs"><col class="c-bs"><col class="c-bs"><col class="c-bs"><col class="c-bs">
+          <col class="c-wt"><col class="c-wt">
+          <col class="c-note">
+          <col class="c-action">
+        </colgroup>
+        <thead><tr>
+          <th>日期</th>
+          <th>早<br>收縮</th><th>早<br>舒張</th><th>早<br>心率</th>
+          <th>晚<br>收縮</th><th>晚<br>舒張</th><th>晚<br>心率</th>
+          <th>空腹<br>血糖</th><th>早餐<br>後</th>
+          <th>午餐<br>前</th><th>午餐<br>後</th>
+          <th>晚餐<br>前</th><th>晚餐<br>後</th>
+          <th>體重<br>kg</th><th>體脂<br>%</th>
+          <th>備註</th>
+          <th class="no-print">操作</th>
+        </tr></thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="tab-stats" class="tab-content">
+    <div id="stats-container"></div>
+  </div>
+
+  <!-- IMPORT -->
+  <div id="tab-import" class="tab-content">
+    <div class="form-card">
+      <h2 style="margin-bottom:16px;">📥 從 CSV 匯入資料</h2>
+      <p style="color:var(--muted);margin-bottom:16px;line-height:1.7;">請選擇之前從本 App 匯出的 CSV 檔案。<br>⚠️ 相同日期的紀錄將會被覆蓋。</p>
+      <div class="import-box">
+        <div style="font-size:2.5rem;margin-bottom:8px;">📁</div>
+        <div style="font-weight:700;margin-bottom:10px;">選擇 CSV 檔案</div>
+        <input type="file" id="csv-file" accept=".csv">
+        <br>
+        <button class="btn btn-primary" onclick="importCSV()" style="margin-top:14px;">開始匯入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="no-print" style="text-align:center;padding:20px;color:var(--muted);font-size:.95rem;margin-top:8px;">
+  製作人：金易樟
+</footer>
+
+<script>
+const STORAGE_KEY = 'health_records_v2';
+
+function today() { return new Date().toISOString().slice(0,10); }
+function load() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function save(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function fv(id) {
+  const v = document.getElementById(id).value.trim();
+  return v === '' ? '' : (isNaN(Number(v)) ? v : Number(v));
+}
+function fmt(v) { return (v === '' || v == null) ? '—' : v; }
+// ---- Warning logic (台灣衛福部標準) ----
+// 血壓：收縮壓 ≥140 或舒張壓 ≥90 → 警示（整組紅）
+function bpClass(sys, dia) {
+  if (sys === '' && dia === '') return '';
+  if (Number(sys) >= 140 || Number(dia) >= 90) return 'val-warn';
+  return 'val-ok';
+}
+// 飯前血糖（空腹/午晚餐前）：≥100 → 警示
+function bsFastingClass(v) {
+  if (v === '' || v == null) return '';
+  return Number(v) >= 100 ? 'val-warn' : 'val-ok';
+}
+// 飯後血糖（餐後2小時）：≥140 → 警示
+function bsPostClass(v) {
+  if (v === '' || v == null) return '';
+  return Number(v) >= 140 ? 'val-warn' : 'val-ok';
+}
+// 體重：若有身高則算 BMI，BMI ≥24 → 警示（無身高則不標色）
+function wtClass(kg) {
+  if (kg === '' || kg == null) return '';
+  const h = parseFloat(localStorage.getItem('user_height_cm') || '0');
+  if (!h) return 'val-normal';
+  const bmi = Number(kg) / ((h/100) ** 2);
+  return bmi >= 24 ? 'val-warn' : 'val-ok';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('rec-date').value = today();
+  const savedH = localStorage.getItem('user_height_cm');
+  if (savedH) document.getElementById('user-height').value = savedH;
+  document.getElementById('print-date-subtitle').textContent = '列印日期：' + today();
+  const d = new Date();
+  document.getElementById('header-date').textContent =
+    d.getFullYear() + ' 年 ' + (d.getMonth()+1) + ' 月 ' + d.getDate() + ' 日';
+  renderHistory(); renderStats();
+});
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'stats') renderStats();
+}
+function switchTabSilent(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const idx = {input:0,history:1,stats:2,import:3}[name];
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  renderHistory();
+}
+
+function saveRecord() {
+  const date = document.getElementById('rec-date').value;
+  if (!date) { toast('⚠️ 請選擇日期'); return; }
+  const rec = {
+    date,
+    bpAmSys: fv('bp-am-sys'), bpAmDia: fv('bp-am-dia'), bpAmHr: fv('bp-am-hr'),
+    bpPmSys: fv('bp-pm-sys'), bpPmDia: fv('bp-pm-dia'), bpPmHr: fv('bp-pm-hr'),
+    bsPreAm: fv('bs-pre-am'), bsPostAm: fv('bs-post-am'),
+    bsPreLunch: fv('bs-pre-lunch'), bsPostLunch: fv('bs-post-lunch'),
+    bsPreDinner: fv('bs-pre-dinner'), bsPostDinner: fv('bs-post-dinner'),
+    wtKg: fv('wt-kg'), wtBf: fv('wt-bf'),
+    note: fv('rec-note')
+  };
+  const db = load();
+  if (db[date] && !confirm(`⚠️ 您已經有輸入過「${date}」這筆日期的紀錄，確定要覆蓋嗎？`)) return;
+  db[date] = rec; save(db);
+  toast('✅ 紀錄已儲存！');
+}
+
+function renderHistory() {
+  const db = load();
+  const keys = Object.keys(db).sort().reverse();
+  const tbody = document.getElementById('history-body');
+  if (!keys.length) {
+    tbody.innerHTML = '<tr><td colspan="17" class="no-data">尚無紀錄，請先在「輸入紀錄」頁面新增。</td></tr>';
+    return;
+  }
+  tbody.innerHTML = keys.map(k => {
+    const r = db[k];
+    const bpAm = bpClass(r.bpAmSys, r.bpAmDia);
+    const bpPm = bpClass(r.bpPmSys, r.bpPmDia);    return `<tr>
+      <td><strong>${r.date}</strong></td>
+      <td class="${bpAm}">${fmt(r.bpAmSys)}</td><td class="${bpAm}">${fmt(r.bpAmDia)}</td><td>${fmt(r.bpAmHr)}</td>
+      <td class="${bpPm}">${fmt(r.bpPmSys)}</td><td class="${bpPm}">${fmt(r.bpPmDia)}</td><td>${fmt(r.bpPmHr)}</td>
+      <td class="${bsFastingClass(r.bsPreAm)}">${fmt(r.bsPreAm)}</td>
+      <td class="${bsPostClass(r.bsPostAm)}">${fmt(r.bsPostAm)}</td>
+      <td class="${bsFastingClass(r.bsPreLunch)}">${fmt(r.bsPreLunch)}</td>
+      <td class="${bsPostClass(r.bsPostLunch)}">${fmt(r.bsPostLunch)}</td>
+      <td class="${bsFastingClass(r.bsPreDinner)}">${fmt(r.bsPreDinner)}</td>
+      <td class="${bsPostClass(r.bsPostDinner)}">${fmt(r.bsPostDinner)}</td>
+      <td class="${wtClass(r.wtKg)}">${fmt(r.wtKg)}</td><td>${fmt(r.wtBf)}</td>
+      <td>${fmt(r.note)}</td>
+      <td class="no-print">
+        <button class="btn btn-primary btn-sm" onclick="editRecord('${k}')">✏️</button>
+        <button class="btn btn-danger btn-sm"  onclick="deleteRecord('${k}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function editRecord(date) {
+  const r = load()[date]; if (!r) return;
+  const set = (id, val) => document.getElementById(id).value = (val === '' || val == null) ? '' : val;
+  set('rec-date', r.date); set('rec-note', r.note);
+  set('bp-am-sys', r.bpAmSys); set('bp-am-dia', r.bpAmDia); set('bp-am-hr', r.bpAmHr);
+  set('bp-pm-sys', r.bpPmSys); set('bp-pm-dia', r.bpPmDia); set('bp-pm-hr', r.bpPmHr);
+  set('bs-pre-am', r.bsPreAm); set('bs-post-am', r.bsPostAm);
+  set('bs-pre-lunch', r.bsPreLunch); set('bs-post-lunch', r.bsPostLunch);
+  set('bs-pre-dinner', r.bsPreDinner); set('bs-post-dinner', r.bsPostDinner);
+  set('wt-kg', r.wtKg); set('wt-bf', r.wtBf);
+  switchTabSilent('input');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.getElementById('tab-input').classList.add('active');
+  toast('📝 已載入 ' + date + ' 的紀錄，修改後請再次儲存。', 3500);
+}
+function deleteRecord(date) {
+  if (!confirm('確定要刪除 ' + date + ' 的紀錄嗎？')) return;
+  const db = load(); delete db[date]; save(db); renderHistory();
+  toast('🗑️ 已刪除 ' + date);
+}
+function clearAll() {
+  if (!confirm('確定要清除「所有」健康紀錄嗎？此動作無法復原！')) return;
+  localStorage.removeItem(STORAGE_KEY); renderHistory(); renderStats();
+  toast('🗑️ 所有紀錄已清除');
+}
+
+function getRows() {
+  const db = load(); return Object.keys(db).sort().map(k => db[k]);
+}
+
+function exportCSV() {
+  const rows = getRows();
+  if (!rows.length) { toast('⚠️ 尚無資料可匯出'); return; }
+  const header = ['日期','早收縮壓','早舒張壓','早心率','晚收縮壓','晚舒張壓','晚心率',
+    '空腹血糖','早餐後血糖','午餐前血糖','午餐後血糖','晚餐前血糖','晚餐後血糖','體重kg','體脂%','備註'];
+  const csv = '\uFEFF' + [header, ...rows.map(r => [
+    r.date, r.bpAmSys, r.bpAmDia, r.bpAmHr, r.bpPmSys, r.bpPmDia, r.bpPmHr,
+    r.bsPreAm, r.bsPostAm, r.bsPreLunch, r.bsPostLunch, r.bsPreDinner, r.bsPostDinner,
+    r.wtKg, r.wtBf, r.note
+  ])].map(r => r.map(v => '"'+(v==null||v===''?'':v)+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = '健康紀錄_' + today() + '.csv'; a.click();
+  toast('✅ CSV 已匯出');
+}
+
+function importCSV() {
+  const file = document.getElementById('csv-file').files[0];
+  if (!file) { toast('⚠️ 請先選擇 CSV 檔案'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.replace(/^\uFEFF/,'').trim().split('\n').slice(1);
+    const db = load(); let count = 0;
+    lines.forEach(line => {
+      const c = line.split(',').map(v => v.replace(/^"|"$/g,'').trim());
+      if (!c[0]) return;
+      const n = v => v === '' ? '' : Number(v);
+      db[c[0]] = {
+        date:c[0], bpAmSys:n(c[1]), bpAmDia:n(c[2]), bpAmHr:n(c[3]),
+        bpPmSys:n(c[4]), bpPmDia:n(c[5]), bpPmHr:n(c[6]),
+        bsPreAm:n(c[7]), bsPostAm:n(c[8]),
+        bsPreLunch:n(c[9]), bsPostLunch:n(c[10]),
+        bsPreDinner:n(c[11]), bsPostDinner:n(c[12]),
+        wtKg:n(c[13]), wtBf:n(c[14]), note:c[15]||''
+      };
+      count++;
+    });
+    save(db); toast('✅ 已匯入 ' + count + ' 筆紀錄');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function printTable() {
+  switchTabSilent('history');
+  setTimeout(() => window.print(), 300);
+}
+function exportPDF() {
+  const rows = getRows();
+  if (!rows.length) { toast('⚠️ 尚無資料可匯出'); return; }
+  switchTabSilent('history');
+  setTimeout(() => {
+    alert('📄 列印視窗開啟後：\n\nMac：左下角點「另存為 PDF」\nWindows：印表機選「Microsoft Print to PDF」');
+    window.print();
+  }, 300);
+}
+
+function avg(arr) {
+  const v = arr.filter(x => x !== '' && !isNaN(x));
+  return v.length ? (v.reduce((a,b)=>a+Number(b),0)/v.length).toFixed(1) : null;
+}
+function renderStats() {
+  const rows = getRows();
+  const el = document.getElementById('stats-container');
+  if (!rows.length) { el.innerHTML = '<div class="no-data">尚無資料可統計。</div>'; return; }
+  const last30 = rows.slice(-30);
+  const fields = [
+    {label:'平均早收縮壓', key:'bpAmSys',     unit:'mmHg', color:'var(--red)'},
+    {label:'平均早舒張壓', key:'bpAmDia',     unit:'mmHg', color:'var(--red)'},
+    {label:'平均晚收縮壓', key:'bpPmSys',     unit:'mmHg', color:'var(--primary)'},
+    {label:'平均晚舒張壓', key:'bpPmDia',     unit:'mmHg', color:'var(--primary)'},
+    {label:'平均空腹血糖', key:'bsPreAm',     unit:'mg/dL',color:'var(--orange)'},
+    {label:'平均早餐後血糖',key:'bsPostAm',   unit:'mg/dL',color:'var(--orange)'},
+    {label:'平均午餐後血糖',key:'bsPostLunch', unit:'mg/dL',color:'var(--orange)'},
+    {label:'平均晚餐後血糖',key:'bsPostDinner',unit:'mg/dL',color:'var(--orange)'},
+    {label:'平均體重',      key:'wtKg',       unit:'kg',   color:'var(--teal)'},
+    {label:'紀錄天數',      key:'_count',     unit:'天',   color:'var(--purple)'},
+  ];
+  el.innerHTML = `<h2 style="margin-bottom:16px;">📊 近期統計（最近 ${last30.length} 筆）</h2>
+  <div class="stats-grid">` +
+  fields.map(f => {
+    const val = f.key === '_count' ? rows.length : avg(last30.map(r => r[f.key]));
+    return `<div class="stat-card">
+      <div class="stat-label">${f.label}</div>
+      <div class="stat-val" style="color:${f.color}">${val ?? '—'}<span style="font-size:.85rem;color:var(--muted)"> ${val != null ? f.unit : ''}</span></div>
+    </div>`;
+  }).join('') + `</div>
+  <div style="background:#fff;border-radius:14px;padding:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);">
+    <h3 style="margin-bottom:10px;">📌 血壓參考範圍</h3>
+    <p style="color:var(--muted);line-height:2;">
+      正常：收縮壓 &lt;120、舒張壓 &lt;80 ｜
+      <span style="color:var(--orange)">偏高：120–139 / 80–89</span> ｜
+      <span style="color:var(--red)">高血壓：≥140 / ≥90</span>
+    </p>
+    <h3 style="margin-top:12px;margin-bottom:10px;">📌 血糖參考範圍</h3>
+    <p style="color:var(--muted);line-height:2;">
+      空腹正常：70–100 mg/dL ｜
+      <span style="color:var(--orange)">空腹偏高：100–126</span> ｜
+      餐後 2 小時正常：&lt;140 mg/dL
+    </p>
+  </div>`;
+}
+</script>
+</body>
+</html>
