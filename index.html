@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="健康紀錄">
+<link rel="manifest" href="/Health/manifest.json">
+<link rel="apple-touch-icon" href="/Health/icon.png">
 <title>健康紀錄表</title>
 <style>
 :root{--primary:#2563eb;--danger:#dc2626;--success:#16a34a;--bg:#f0f4f8;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#cbd5e1;--r:16px}
@@ -233,6 +239,14 @@ function toast2(msg,type){
   var t=document.getElementById('toast');
   t.textContent=msg;t.className='toast '+(type||'')+' show';
   clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2500);
+}
+// 註冊 Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('/Health/sw.js')
+      .then(function(r){ console.log('SW registered'); })
+      .catch(function(e){ console.log('SW error', e); });
+  });
 }
 </script>
 </body>
