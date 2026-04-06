@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>金國傳先生健康紀錄表</title>
+<style>
+:root{--primary:#2563eb;--danger:#dc2626;--success:#16a34a;--bg:#f0f4f8;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#cbd5e1;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:18px;padding-bottom:50px}
+header{background:var(--primary);color:#fff;padding:20px 16px 14px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+header h1{font-size:22px;font-weight:700;letter-spacing:1px}
+header p{font-size:13px;opacity:.85;margin-top:4px}
+.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);position:sticky;top:78px;z-index:99}
+.tab{flex:1;padding:16px 4px;text-align:center;font-size:17px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.page{display:none;padding:16px;max-width:600px;margin:0 auto}
+.page.active{display:block}
+.sec{font-size:17px;font-weight:700;color:var(--primary);margin:20px 0 10px;padding-left:10px;border-left:4px solid var(--primary)}
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.fl{font-size:16px;font-weight:600;margin-bottom:8px;display:block}
+.fr{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.fr:last-child{margin-bottom:0}
+.fr label{font-size:15px;color:var(--muted);min-width:90px;flex-shrink:0}
+input[type=number],input[type=date],textarea{width:100%;padding:13px 14px;font-size:20px;border:2px solid var(--border);border-radius:10px;background:#f8fafc;color:var(--text);-webkit-appearance:none;appearance:none;font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--primary);background:#fff}
+.bpr{display:flex;gap:8px;align-items:center;flex:1}
+.bpr input{flex:1;min-width:0}
+.bps{font-size:22px;color:var(--muted);font-weight:bold;flex-shrink:0}
+.bpu{font-size:13px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+textarea{font-size:17px;min-height:80px;resize:none;line-height:1.5}
+.btn{display:block;width:100%;padding:18px;border:none;border-radius:var(--r);font-size:20px;font-weight:700;cursor:pointer;margin-top:8px;font-family:inherit;touch-action:manipulation}
+.btn:active{opacity:.8}
+.bp{background:var(--primary);color:#fff}
+.bo{background:#fff;color:var(--primary);border:2px solid var(--primary);font-size:17px;padding:14px;margin-top:0}
+.bd{background:var(--danger);color:#fff;font-size:17px;padding:14px}
+.bsm{display:inline-block;width:auto;padding:10px 18px;font-size:15px;border-radius:10px;margin-top:0}
+.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar button{flex:1;min-width:100px}
+.rc{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:5px solid var(--border)}
+.rc.al{border-left-color:var(--danger)}
+.rd{font-size:17px;font-weight:700;color:var(--primary);margin-bottom:10px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.ri .lb{color:var(--muted);font-size:13px}
+.ri .vl{font-weight:600;font-size:16px}
+.ri .vl.al{color:var(--danger)}
+.rn{margin-top:10px;font-size:15px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;word-break:break-all}
+.badge{display:inline-block;background:var(--danger);color:#fff;border-radius:6px;font-size:12px;font-weight:700;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.delbtn{margin-top:12px;background:#fee2e2;color:var(--danger);border:none;border-radius:8px;padding:10px 18px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation}
+.empty{text-align:center;color:var(--muted);font-size:17px;padding:40px 20px}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.ov.show{display:flex}
+.modal{background:#fff;border-radius:var(--r);padding:28px 20px 20px;max-width:400px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h2{font-size:20px;margin-bottom:12px}
+.modal p{font-size:16px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.mbtns{display:flex;gap:10px}
+.mbtns button{flex:1}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;border-radius:12px;padding:14px 24px;font-size:16px;font-weight:600;z-index:300;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--success)}
+.toast.err{background:var(--danger)}
+.maker{text-align:center;font-size:13px;color:var(--muted);padding:10px}
+@media print{
+  body{background:#fff;padding:0;font-size:14px}
+  header{position:static;box-shadow:none;background:#fff;color:#000;border-bottom:2px solid #000}
+  header h1{font-size:18px}
+  .tabs,.page#pi,.toolbar,.delbtn,.maker{display:none!important}
+  .page#ph{display:block!important;padding:0}
+  .rc{box-shadow:none;border:1px solid #ccc;border-left:3px solid #666;page-break-inside:avoid;margin-bottom:8px;padding:10px}
+  .rc.al{border-left-color:#c00}
+  .ri .vl.al{color:#c00!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .badge{background:#c00!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>金國傳先生健康紀錄表</h1>
+  <p>每日健康追蹤</p>
+</header>
+<div class="tabs">
+  <div class="tab active" id="ti" onclick="sw('i')">📝 輸入</div>
+  <div class="tab" id="th" onclick="sw('h')">📋 歷史紀錄</div>
+</div>
+<div id="pi" class="page active">
+  <div class="sec">📅 日期</div>
+  <div class="card">
+    <div class="fr"><label>紀錄日期</label><input type="date" id="dt"></div>
+  </div>
+  <div class="sec">🩺 血壓（mmHg）</div>
+  <div class="card">
+    <span class="fl">早上量測</span>
+    <div class="fr">
+      <label>收縮/舒張</label>
+      <div class="bpr">
+        <input type="number" id="bms" placeholder="收縮" min="60" max="250" inputmode="numeric">
+        <span class="bps">/</span>
+        <input type="number" id="bmd" placeholder="舒張" min="40" max="150" inputmode="numeric">
+      </div>
+      <span class="bpu">mmHg</span>
+    </div>
+  </div>
+  <div class="card">
+    <span class="fl">晚上量測</span>
+    <div class="fr">
+      <label>收縮/舒張</label>
+      <div class="bpr">
+        <input type="number" id="bes" placeholder="收縮" min="60" max="250" inputmode="numeric">
+        <span class="bps">/</span>
+        <input type="number" id="bed" placeholder="舒張" min="40" max="150" inputmode="numeric">
+      </div>
+      <span class="bpu">mmHg</span>
+    </div>
+  </div>
+  <div class="sec">🩸 血糖（mg/dL）</div>
+  <div class="card">
+    <div class="fr"><label>空腹（早上）</label><input type="number" id="gf" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+    <div class="fr"><label>早餐後2小時</label><input type="number" id="gpb" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+    <div class="fr"><label>午餐前</label><input type="number" id="grl" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+    <div class="fr"><label>午餐後2小時</label><input type="number" id="gol" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+    <div class="fr"><label>晚餐前</label><input type="number" id="grd" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+    <div class="fr"><label>晚餐後2小時</label><input type="number" id="god" placeholder="－" min="40" max="600" inputmode="numeric"></div>
+  </div>
+  <div class="sec">⚖️ 體重</div>
+  <div class="card">
+    <div class="fr"><label>體重（公斤）</label><input type="number" id="wt" placeholder="－" min="20" max="200" step="0.1" inputmode="decimal"></div>
+  </div>
+  <div class="sec">📝 備註</div>
+  <div class="card">
+    <textarea id="nt" placeholder="今日身體狀況、用藥、特殊情形…"></textarea>
+  </div>
+  <button class="btn bp" onclick="doSave()">💾 儲存紀錄</button>
+  <div class="maker">製作人：金易樟</div>
+</div>
+<div id="ph" class="page">
+  <div class="toolbar">
+    <button class="btn bo bsm" onclick="expCSV()">📤 匯出 CSV</button>
+    <button class="btn bo bsm" onclick="doPrint()">🖨️ 列印/PDF</button>
+    <button class="btn bd bsm" onclick="openM('mc')">🗑️ 清除全部</button>
+  </div>
+  <div id="hl"></div>
+</div>
+<div class="ov" id="md"><div class="modal"><h2>⚠️ 日期重複</h2><p id="mdp">此日期已有紀錄，確定要覆蓋嗎？</p><div class="mbtns"><button class="btn bo" onclick="closeM('md')">取消</button><button class="btn bp" onclick="cfSave()">確認覆蓋</button></div></div></div>
+<div class="ov" id="mc"><div class="modal"><h2>⚠️ 確認清除</h2><p>確定刪除所有紀錄？此操作無法復原！</p><div class="mbtns"><button class="btn bo" onclick="closeM('mc')">取消</button><button class="btn bd" onclick="clrAll()">確認清除</button></div></div></div>
+<div class="ov" id="mdl"><div class="modal"><h2>🗑️ 確認刪除</h2><p id="mdlp">確定刪除此筆紀錄？</p><div class="mbtns"><button class="btn bo" onclick="closeM('mdl')">取消</button><button class="btn bd" onclick="cfDel()">確認刪除</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+var KEY='hlth_jkt',ps=null,pd=null;
+function ld(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch(e){return[];}}
+function sv(a){localStorage.setItem(KEY,JSON.stringify(a));}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+document.getElementById('dt').value=today();
+function sw(t){
+  document.getElementById('ti').className='tab'+(t==='i'?' active':'');
+  document.getElementById('th').className='tab'+(t==='h'?' active':'');
+  document.getElementById('pi').className='page'+(t==='i'?' active':'');
+  document.getElementById('ph').className='page'+(t==='h'?' active':'');
+  if(t==='h')render();
+}
+function ba(s,d){return(s&&s>=140)||(d&&d>=90);}
+function ga(v,t){if(!v)return false;return t==='post'?v>=140:v>=100;}
+function hasa(r){return ba(r.bms,r.bmd)||ba(r.bes,r.bed)||ga(r.gf,'pre')||ga(r.gpb,'post')||ga(r.grl,'pre')||ga(r.gol,'post')||ga(r.grd,'pre')||ga(r.god,'post');}
+function gf(){
+  var n=function(id){var v=document.getElementById(id).value;return v===''?null:Number(v);};
+  return{date:document.getElementById('dt').value,bms:n('bms'),bmd:n('bmd'),bes:n('bes'),bed:n('bed'),gf:n('gf'),gpb:n('gpb'),grl:n('grl'),gol:n('gol'),grd:n('grd'),god:n('god'),wt:n('wt'),note:document.getElementById('nt').value.trim()};
+}
+function doSave(){
+  var d=gf();
+  if(!d.date){toast2('請先選擇日期','err');return;}
+  var a=ld(),idx=a.findIndex(function(r){return r.date===d.date;});
+  if(idx!==-1){ps={d:d,idx:idx};document.getElementById('mdp').textContent=fd(d.date)+' 已有紀錄，確定要覆蓋嗎？';openM('md');}
+  else{saveDo(d,-1,a);}
+}
+function cfSave(){closeM('md');if(!ps)return;var a=ld();saveDo(ps.d,ps.idx,a);ps=null;}
+function saveDo(d,idx,a){
+  if(idx!==-1)a[idx]=d;else a.unshift(d);
+  a.sort(function(x,y){return y.date.localeCompare(x.date);});
+  sv(a);toast2('✅ 儲存成功！','ok');
+}
+function fd(s){if(!s)return'';var p=s.split('-');return p[0]+'年'+p[1]+'月'+p[2]+'日';}
+function fv(v){return(v===null||v===undefined||v==='')?'－':v;}
+function vc(a){return a?'vl al':'vl';}
+function render(){
+  var a=ld(),el=document.getElementById('hl');
+  if(!a.length){el.innerHTML='<div class="empty">尚無紀錄<br>請先在「輸入」頁新增資料</div>';return;}
+  var h='';
+  for(var i=0;i<a.length;i++){
+    var r=a[i],al=hasa(r),bma=ba(r.bms,r.bmd),bea=ba(r.bes,r.bed);
+    var bpM=(r.bms||r.bmd)?fv(r.bms)+'/'+fv(r.bmd):'－';
+    var bpE=(r.bes||r.bed)?fv(r.bes)+'/'+fv(r.bed):'－';
+    h+='<div class="rc'+(al?' al':'')+'"><div class="rd">'+fd(r.date)+(al?'<span class="badge">⚠ 異常</span>':'')+'</div>';
+    h+='<div class="rg">';
+    h+='<div class="ri"><div class="lb">🩺早上血壓</div><div class="'+vc(bma)+'">'+bpM+'</div></div>';
+    h+='<div class="ri"><div class="lb">🩺晚上血壓</div><div class="'+vc(bea)+'">'+bpE+'</div></div>';
+    var bg=[{l:'空腹',v:r.gf,t:'pre'},{l:'早餐後',v:r.gpb,t:'post'},{l:'午餐前',v:r.grl,t:'pre'},{l:'午餐後',v:r.gol,t:'post'},{l:'晚餐前',v:r.grd,t:'pre'},{l:'晚餐後',v:r.god,t:'post'}];
+    for(var j=0;j<bg.length;j++){h+='<div class="ri"><div class="lb">🩸'+bg[j].l+'血糖</div><div class="'+vc(ga(bg[j].v,bg[j].t))+'">'+fv(bg[j].v)+'</div></div>';}
+    h+='<div class="ri"><div class="lb">⚖️體重</div><div class="vl">'+(r.wt?r.wt+' kg':'－')+'</div></div>';
+    h+='</div>';
+    if(r.note)h+='<div class="rn">📝 '+r.note+'</div>';
+    h+='<button class="delbtn" onclick="askDel('+i+')">🗑️ 刪除此筆</button></div>';
+  }
+  el.innerHTML=h;
+}
+function askDel(i){var a=ld();pd=i;document.getElementById('mdlp').textContent='確定刪除 '+fd(a[i].date)+' 的紀錄？';openM('mdl');}
+function cfDel(){closeM('mdl');if(pd===null)return;var a=ld();a.splice(pd,1);sv(a);pd=null;render();toast2('已刪除','ok');}
+function clrAll(){closeM('mc');localStorage.removeItem(KEY);render();toast2('已清除所有紀錄');}
+function expCSV(){
+  var a=ld();if(!a.length){toast2('尚無資料','err');return;}
+  var hd=['日期','早上收縮壓','早上舒張壓','晚上收縮壓','晚上舒張壓','空腹血糖','早餐後血糖','午餐前血糖','午餐後血糖','晚餐前血糖','晚餐後血糖','體重kg','備註'];
+  var rows=a.map(function(r){return[r.date,r.bms===null?'':r.bms,r.bmd===null?'':r.bmd,r.bes===null?'':r.bes,r.bed===null?'':r.bed,r.gf===null?'':r.gf,r.gpb===null?'':r.gpb,r.grl===null?'':r.grl,r.gol===null?'':r.gol,r.grd===null?'':r.grd,r.god===null?'':r.god,r.wt===null?'':r.wt,'"'+(r.note||'').replace(/"/g,'""')+'"'];});
+  var csv=[hd].concat(rows).map(function(r){return r.join(',');}).join('\n');
+  var lnk=document.createElement('a');
+  lnk.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  lnk.download='金國傳健康紀錄_'+today()+'.csv';
+  lnk.click();
+  toast2('✅ CSV 匯出成功','ok');
+}
+function doPrint(){var a=ld();if(!a.length){toast2('尚無資料','err');return;}sw('h');setTimeout(function(){window.print();},300);}
+function openM(id){document.getElementById(id).classList.add('show');}
+function closeM(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.ov').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('show');});});
+var tt;
+function toast2(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'')+' show';
+  clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show');},2500);
+}
+</script>
+</body>
+</html>
