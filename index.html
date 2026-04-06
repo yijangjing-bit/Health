@@ -61,92 +61,30 @@ textarea{font-size:17px;min-height:80px;resize:none;line-height:1.5}
 .toast.err{background:var(--danger)}
 .maker{text-align:center;font-size:13px;color:var(--muted);padding:10px}
 
-/* ===== 列印樣式 ===== */
 @media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body { background: #fff; padding: 0; margin: 0; font-size: 11px; }
-
-  header {
-    position: static; box-shadow: none;
-    background: #fff !important; color: #000 !important;
-    border-bottom: 2px solid #000;
-    padding: 8px 12px;
-  }
-  header h1 { font-size: 15px; color: #000 !important; }
-  header p { font-size: 10px; color: #555 !important; margin-top: 2px; }
-
-  .tabs, .page#pi, .toolbar, .delbtn, .maker, .toast, .ov { display: none !important; }
-
-  .page#ph {
-    display: block !important;
-    padding: 6px 10px;
-    max-width: 100%;
-  }
-
-  /* 每頁列印多筆：用表格式緊湊排版 */
-  .rc {
-    box-shadow: none !important;
-    border: 1px solid #bbb !important;
-    border-left: 3px solid #666 !important;
-    border-radius: 4px !important;
-    margin-bottom: 5px !important;
-    padding: 5px 8px !important;
-    page-break-inside: avoid;
-  }
-  .rc.al { border-left-color: #cc0000 !important; }
-
-  .rd {
-    font-size: 11px !important;
-    font-weight: 700;
-    color: #000 !important;
-    margin-bottom: 4px !important;
-  }
-
-  .badge {
-    background: #cc0000 !important;
-    color: #fff !important;
-    font-size: 9px !important;
-    padding: 1px 5px !important;
-  }
-
-  /* 血壓血糖體重改成橫排一行 */
-  .rg {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 2px 10px !important;
-  }
-  .ri {
-    display: flex !important;
-    align-items: baseline !important;
-    gap: 3px !important;
-    white-space: nowrap;
-  }
-  .ri .lb {
-    font-size: 9px !important;
-    color: #666 !important;
-  }
-  .ri .vl {
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #000 !important;
-  }
-  .ri .vl.al {
-    color: #cc0000 !important;
-  }
-
-  .rn {
-    font-size: 9px !important;
-    color: #555 !important;
-    margin-top: 3px !important;
-    padding-top: 3px !important;
-    border-top: 1px solid #ddd !important;
-  }
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff;padding:0;margin:0;font-size:11px}
+  header{position:static;box-shadow:none;background:#fff!important;color:#000!important;border-bottom:2px solid #000;padding:8px 12px}
+  header h1{font-size:15px;color:#000!important}
+  header p{font-size:10px;color:#555!important;margin-top:2px}
+  .tabs,.page#pi,.toolbar,.delbtn,.maker,.toast,.ov{display:none!important}
+  .page#ph{display:block!important;padding:6px 10px;max-width:100%}
+  .rc{box-shadow:none!important;border:1px solid #bbb!important;border-left:3px solid #666!important;border-radius:4px!important;margin-bottom:5px!important;padding:5px 8px!important;page-break-inside:avoid}
+  .rc.al{border-left-color:#cc0000!important}
+  .rd{font-size:11px!important;font-weight:700;color:#000!important;margin-bottom:4px!important}
+  .badge{background:#cc0000!important;color:#fff!important;font-size:9px!important;padding:1px 5px!important}
+  .rg{display:flex!important;flex-wrap:wrap!important;gap:2px 10px!important}
+  .ri{display:flex!important;align-items:baseline!important;gap:3px!important;white-space:nowrap}
+  .ri .lb{font-size:9px!important;color:#666!important}
+  .ri .vl{font-size:11px!important;font-weight:700!important;color:#000!important}
+  .ri .vl.al{color:#cc0000!important}
+  .rn{font-size:9px!important;color:#555!important;margin-top:3px!important;padding-top:3px!important;border-top:1px solid #ddd!important}
 }
 </style>
 </head>
 <body>
 <header>
-  <h1>金國傳先生健康紀錄表</h1>
+  <h1>健康紀錄表</h1>
   <p>每日健康追蹤</p>
 </header>
 <div class="tabs">
@@ -282,7 +220,7 @@ function expCSV(){
   var csv=[hd].concat(rows).map(function(r){return r.join(',');}).join('\n');
   var lnk=document.createElement('a');
   lnk.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  lnk.download='金國傳健康紀錄_'+today()+'.csv';
+  lnk.download='健康紀錄_'+today()+'.csv';
   lnk.click();
   toast2('✅ CSV 匯出成功','ok');
 }
